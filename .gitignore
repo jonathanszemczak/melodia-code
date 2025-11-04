@@ -1,41 +1,20 @@
-# Prerequisites
-*.d
+# Ignorar pasta de build
+/build/
 
-# Compiled Object files
-*.slo
-*.lo
+# Ignorar pasta de cache de ferramentas
+/.cache/
+
+# Ignorar arquivos de comandos de compilação (gerados pelo CMake, por exemplo)
+/compile_commands.json
+
+# Arquivos temporários do sistema
+*.swp
+*.tmp
+*.bak
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
 *.exe
 *.out
-*.app
 
-# debug information files
-*.dwo
+# Logs
+*.log
