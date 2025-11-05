@@ -16,5 +16,8 @@
 *.exe
 *.out
 
+# Arquivos de configuração
+*.clangd
+
 # Logs
 *.log

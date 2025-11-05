@@ -5,8 +5,6 @@
 int main() {
   using namespace ftxui;
 
-  int i = 1;
-
   // Create a simple document with three text elements.
   Element document = hbox({
       text("left") | border,

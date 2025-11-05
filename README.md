@@ -5,7 +5,7 @@ sudo apt install make cmake g++ git libncurses5-dev
 
 CMake:
 # 1. Gera os arquivos de build na pasta "build/"
-cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+cmake -B build -S .
 
 ln -s build/compile_commands.json compile_commands.json
 
