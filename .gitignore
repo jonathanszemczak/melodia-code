@@ -1,6 +1,8 @@
 # Ignorar pasta de build
 /build/
 
+#/examples/
+
 # Ignorar pasta de cache de ferramentas
 /.cache/
 
