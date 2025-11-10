@@ -48,17 +48,19 @@ int main() {
   std::vector<std::string> settingsMenuEntries = {"Play", "Pause", "Stop",
                                                   "Next", "Previous"};
 
+  // Music menu
   MenuOption musicMenuOptions;
   auto musicMenu = Menu(&musicMenuEntries, &selectedMusic, musicMenuOptions);
 
-  // 🔴 Tabs com underline vermelho
+  // Tabs menu
   MenuOption tabsOption = MenuOption::HorizontalAnimated();
   tabsOption.underline.color_active = Color::Red;
   auto tabsMenu = Menu(&tabLabels, &selectedTab, tabsOption);
 
-  MenuOption settingsMenuOptions;
-  auto settingsMenu =
-      Menu(&settingsMenuEntries, &selectedSetting, settingsMenuOptions);
+  // Sidebar menu
+  MenuOption sidebarMenuOptions;
+  auto sidebarMenu =
+      Menu(&settingsMenuEntries, &selectedSetting, sidebarMenuOptions);
 
   // Botão abre/fecha sidebar
   auto toggleSidebarButton =
@@ -83,7 +85,7 @@ int main() {
                }),
   });
 
-  auto sidebarElements = Container::Vertical({settingsMenu});
+  auto sidebarElements = Container::Vertical({sidebarMenu});
 
   // Render barra lateral
   auto sidebarRender = Renderer(sidebarElements, [&] {
@@ -91,7 +93,7 @@ int main() {
       return text("") | size(WIDTH, EQUAL, 0);
     }
     return vbox({text(" Menu Lateral") | bold | center, separator(),
-                 settingsMenu->Render() | flex, filler()}) |
+                 sidebarMenu->Render() | flex, filler()}) |
            border | bgcolor(Color::RGB(30, 30, 30)) | size(WIDTH, EQUAL, 30);
   });
 
