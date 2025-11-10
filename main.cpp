@@ -22,15 +22,17 @@ int main() {
   // estados e valores iniciais
   bool sidebarOpen = false;
 
-  int menuSelectedIndex = 0;
+  int selectedTab = 0;
+  int selectedMusic = 0;
+  int selectedSetting = 0;
 
-  int initialVolume = 30;
+  int initialVolumeSlidebar = 50;
 
   // volume slidebar
-  auto volumeSlidebar = Slider("", &initialVolume, 0, 100, 5);
+  auto volumeSlidebar = Slider("Volume: ", &initialVolumeSlidebar, 0, 100, 1);
 
-  // menu simples de seleção
-  std::vector<std::string> menuEntries = {
+  // menu simples de seleção de musicas
+  std::vector<std::string> musicMenuEntries = {
       "Music 1",  "Music 2",  "Music 3",  "Music 4",  "Music 5",  "Music 6",
       "Music 7",  "Music 8",  "Music 9",  "Music 10", "Music 11", "Music 12",
       "Music 13", "Music 14", "Music 15", "Music 16", "Music 17", "Music 18",
@@ -40,8 +42,23 @@ int main() {
       "Music 37", "Music 37",
   };
 
-  MenuOption menuOpt;
-  auto menu = Menu(&menuEntries, &menuSelectedIndex, menuOpt);
+  std::vector<std::string> tabLabels = {"Playlist", "Favorites",
+                                        "Recently Played"};
+
+  std::vector<std::string> settingsMenuEntries = {"Play", "Pause", "Stop",
+                                                  "Next", "Previous"};
+
+  MenuOption musicMenuOptions;
+  auto musicMenu = Menu(&musicMenuEntries, &selectedMusic, musicMenuOptions);
+
+  // 🔴 Tabs com underline vermelho
+  MenuOption tabsOption = MenuOption::HorizontalAnimated();
+  tabsOption.underline.color_active = Color::Red;
+  auto tabsMenu = Menu(&tabLabels, &selectedTab, tabsOption);
+
+  MenuOption settingsMenuOptions;
+  auto settingsMenu =
+      Menu(&settingsMenuEntries, &selectedSetting, settingsMenuOptions);
 
   // Botão abre/fecha sidebar
   auto toggleSidebarButton =
@@ -51,41 +68,42 @@ int main() {
   auto exitButton = MakeStyledButton(
       "Sair", [] { ScreenInteractive::Active()->ExitLoopClosure()(); });
 
-  auto mainContentElements =
-      Container::Horizontal({menu, toggleSidebarButton, exitButton});
+  auto mainContentElements = Container::Vertical(
+      {tabsMenu, musicMenu, toggleSidebarButton, exitButton});
 
   // Render conteúdo principal
   auto mainContentRender = Container::Vertical({
       Renderer(mainContentElements,
                [&] {
-                 return vbox({
-                     toggleSidebarButton->Render() | flex,
-                     exitButton->Render(),
-                     menu->Render() | border | flex,
-                 });
+                 return vbox({toggleSidebarButton->Render(),
+                              exitButton->Render(),
+
+                              hbox({musicMenu->Render() | border | flex,
+                                    tabsMenu->Render() | border})});
                }),
   });
 
+  auto sidebarElements = Container::Vertical({settingsMenu});
+
   // Render barra lateral
-  auto sidebarRender = Renderer([&] {
+  auto sidebarRender = Renderer(sidebarElements, [&] {
     if (!sidebarOpen) {
       return text("") | size(WIDTH, EQUAL, 0);
     }
-    return vbox({text(" Menu Lateral") | bold, separator(), text(" Play"),
-                 text(" Pause"), text(" Stop"), filler(),
-                 text(" Fechar") | dim}) |
-           border | size(WIDTH, EQUAL, 20) | bgcolor(Color::RGB(30, 30, 30));
+    return vbox({text(" Menu Lateral") | bold | center, separator(),
+                 settingsMenu->Render() | flex, filler()}) |
+           border | bgcolor(Color::RGB(30, 30, 30)) | size(WIDTH, EQUAL, 30);
   });
 
   // Guarda menu lateral e main content em container horizontal
   auto root = Container::Horizontal({sidebarRender, mainContentRender});
 
-  // Renderiza tudo
+  // Renderiza tudo(root)
   auto renderer = Renderer(root, [&] {
     return hbox(
         {sidebarRender->Render(),
          vbox({text("Music Player") | center | bold | color(Color::Green),
-               separator(), mainContentRender->Render(), separator(),
+               mainContentRender->Render(), separator(),
                text("TAB: navegar • ENTER: clicar") | center | dim}) |
              flex | border});
   });
@@ -106,7 +124,7 @@ Component MakeStyledButton(const std::string &label,
   // Aplica estilo visual
   return Renderer(button, [button, label] {
     return button->Render() |
-           size(WIDTH, EQUAL, static_cast<int>(label.size() + 4)) | center |
+           size(WIDTH, EQUAL, static_cast<int>(label.size() + 5)) | center |
            borderRounded | bgcolor(Color::GrayDark);
   });
 }
