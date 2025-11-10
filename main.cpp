@@ -127,6 +127,6 @@ Component MakeStyledButton(const std::string &label,
   return Renderer(button, [button, label] {
     return button->Render() |
            size(WIDTH, EQUAL, static_cast<int>(label.size() + 5)) | center |
-           borderRounded | bgcolor(Color::GrayDark);
+           borderRounded;
   });
 }
