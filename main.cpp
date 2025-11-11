@@ -5,7 +5,6 @@
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/dom/node.hpp>
 #include <ftxui/screen/color.hpp>
-#include <iostream>
 #include <memory>
 
 using namespace ftxui;
@@ -22,8 +21,9 @@ int main() {
   // estados e valores iniciais
   bool sidebarOpen = false;
 
-  int selectedTab = 0;
   int selectedMusic = 0;
+  int selectedPlaylist = 0;
+  int selectedTab = 0;
   int selectedSetting = 0;
 
   int initialVolumeSlidebar = 50;
@@ -42,6 +42,11 @@ int main() {
       "Music 37", "Music 37",
   };
 
+  std::vector<std::string> playlistMenuEntries = {
+      "Playlist 1", "Playlist 2", "Playlist 3", "Playlist 4", "Playlist 5",
+
+  };
+
   std::vector<std::string> tabLabels = {"Playlist", "Favorites",
                                         "Recently Played"};
 
@@ -52,17 +57,22 @@ int main() {
   MenuOption musicMenuOptions;
   auto musicMenu = Menu(&musicMenuEntries, &selectedMusic, musicMenuOptions);
 
+  // Playlist menu
+  MenuOption playlistMenuOptions;
+  auto playlistMenu =
+      Menu(&playlistMenuEntries, &selectedPlaylist, playlistMenuOptions);
+
   // Tabs menu
-  MenuOption tabsOption = MenuOption::HorizontalAnimated();
-  tabsOption.underline.color_active = Color::Red;
-  auto tabsMenu = Menu(&tabLabels, &selectedTab, tabsOption);
+  MenuOption tabsMenuOptions = MenuOption::HorizontalAnimated();
+  tabsMenuOptions.underline.color_active = Color::Red;
+  auto tabsMenu = Menu(&tabLabels, &selectedTab, tabsMenuOptions);
 
   // Sidebar menu
   MenuOption sidebarMenuOptions;
   auto sidebarMenu =
       Menu(&settingsMenuEntries, &selectedSetting, sidebarMenuOptions);
 
-  // Botão abre/fecha sidebar
+  // Botão sidebar
   auto toggleSidebarButton =
       MakeStyledButton("Menu", [&sidebarOpen] { sidebarOpen = !sidebarOpen; });
 
@@ -70,24 +80,35 @@ int main() {
   auto exitButton = MakeStyledButton(
       "Sair", [] { ScreenInteractive::Active()->ExitLoopClosure()(); });
 
-  auto mainContentElements = Container::Vertical(
-      {tabsMenu, musicMenu, toggleSidebarButton, exitButton});
+  // Render tabs menu
+  auto tabsElements = Container::Vertical({tabsMenu, playlistMenu});
+
+  auto tabsRender = Renderer(tabsElements, [&] {
+    return vbox({
+        tabsMenu->Render(),
+        playlistMenu->Render() | flex,
+    });
+  });
 
   // Render conteúdo principal
+  auto mainContentElements = Container::Vertical(
+      {tabsRender, musicMenu, toggleSidebarButton, exitButton});
+
   auto mainContentRender = Container::Vertical({
       Renderer(mainContentElements,
                [&] {
                  return vbox({toggleSidebarButton->Render(),
                               exitButton->Render(),
 
-                              hbox({musicMenu->Render() | border | flex,
-                                    tabsMenu->Render() | border})});
+                              hbox({musicMenu->Render() | borderRounded | flex,
+                                    tabsRender->Render() | borderRounded |
+                                        bgcolor(Color::RGB(30, 30, 30))})});
                }),
   });
 
+  // Render barra lateral
   auto sidebarElements = Container::Vertical({sidebarMenu});
 
-  // Render barra lateral
   auto sidebarRender = Renderer(sidebarElements, [&] {
     if (!sidebarOpen) {
       return text("") | size(WIDTH, EQUAL, 0);
@@ -105,7 +126,7 @@ int main() {
     return hbox(
         {sidebarRender->Render(),
          vbox({text("Music Player") | center | bold | color(Color::Green),
-               mainContentRender->Render(), separator(),
+               separator(), mainContentRender->Render() | flex, separator(),
                text("TAB: navegar • ENTER: clicar") | center | dim}) |
              flex | border});
   });
