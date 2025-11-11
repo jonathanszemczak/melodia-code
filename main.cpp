@@ -50,8 +50,24 @@ int main() {
   std::vector<std::string> tabLabels = {"Playlist", "Favorites",
                                         "Recently Played"};
 
-  std::vector<std::string> settingsMenuEntries = {"Play", "Pause", "Stop",
-                                                  "Next", "Previous"};
+  std::vector<std::string> settingsMenuEntries = {"Play",
+                                                  "Pause",
+                                                  "Stop",
+                                                  "Next",
+                                                  "Previous",
+                                                  "Toggle Shuffle",
+                                                  "Toggle Continue",
+                                                  "Add music to queue",
+                                                  "Remove music from queue",
+                                                  "View music queue",
+                                                  "Add to Playlist",
+                                                  "Remove from playlist",
+                                                  "Add to favorites",
+                                                  "Remove from favorites",
+                                                  "Add music",
+                                                  "Remove music",
+                                                  "Music info",
+                                                  "Playlist info"};
 
   // Music menu
   MenuOption musicMenuOptions;
