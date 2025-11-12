@@ -6,6 +6,7 @@
 #include <ftxui/dom/node.hpp>
 #include <ftxui/screen/color.hpp>
 #include <memory>
+#include <string>
 
 using namespace ftxui;
 
@@ -15,10 +16,7 @@ Component MakeStyledButton(const std::string &label,
 int main() {
   auto screen = ScreenInteractive::Fullscreen();
 
-  const std::string left = "left";
-  const std::string right = "right";
-
-  // estados e valores iniciais
+  // Estados e valores iniciais
   bool sidebarOpen = false;
 
   int selectedMusic = 0;
@@ -26,10 +24,10 @@ int main() {
   int selectedTab = 0;
   int selectedSetting = 0;
 
-  int initialVolumeSlidebar = 50;
+  int initialVolumeSlidebar = 10;
 
-  // volume slidebar
-  auto volumeSlidebar = Slider("Volume: ", &initialVolumeSlidebar, 0, 100, 1);
+  // Search bar
+  std::string searchBarEntries;
 
   // menu simples de seleção de musicas
   std::vector<std::string> musicMenuEntries = {
@@ -69,6 +67,12 @@ int main() {
                                                   "Music info",
                                                   "Playlist info"};
 
+  // Search bar
+  Component searchBar = Input(&searchBarEntries, "");
+
+  // Volume slidebar
+  auto volumeSlidebar = Slider("", &initialVolumeSlidebar, 0, 50, 1);
+
   // Music menu
   MenuOption musicMenuOptions;
   auto musicMenu = Menu(&musicMenuEntries, &selectedMusic, musicMenuOptions);
@@ -96,6 +100,24 @@ int main() {
   auto exitButton = MakeStyledButton(
       "Sair", [] { ScreenInteractive::Active()->ExitLoopClosure()(); });
 
+  // Render topbar
+  auto topBarElements = Container::Horizontal({volumeSlidebar, searchBar});
+
+  auto topBarRender = Renderer(topBarElements, [&] {
+    return hbox({
+        filler(),
+        text("Search:"),
+        searchBar->Render() | size(WIDTH, GREATER_THAN, 90) |
+            bgcolor(Color::RGB(127, 127, 127)),
+        filler() | flex_grow,
+        separator(),
+        filler() | flex_grow,
+        text("Volume:"),
+        volumeSlidebar->Render() | size(WIDTH, GREATER_THAN, 50) | flex,
+        filler(),
+    });
+  });
+
   // Render tabs menu
   auto tabsElements = Container::Vertical({tabsMenu, playlistMenu});
 
@@ -108,17 +130,19 @@ int main() {
 
   // Render conteúdo principal
   auto mainContentElements = Container::Vertical(
-      {tabsRender, musicMenu, toggleSidebarButton, exitButton});
+      {topBarRender, tabsRender, musicMenu, toggleSidebarButton, exitButton});
 
   auto mainContentRender = Container::Vertical({
       Renderer(mainContentElements,
                [&] {
-                 return vbox({toggleSidebarButton->Render(),
-                              exitButton->Render(),
+                 return vbox({toggleSidebarButton->Render(), separator(),
+                              topBarRender->Render(), separator(),
 
-                              hbox({musicMenu->Render() | borderRounded | flex,
-                                    tabsRender->Render() | borderRounded |
-                                        bgcolor(Color::RGB(30, 30, 30))})});
+                              hbox({
+                                  musicMenu->Render() | borderRounded | flex,
+                                  tabsRender->Render() | borderRounded |
+                                      bgcolor(Color::RGB(30, 30, 30)),
+                              })});
                }),
   });
 
